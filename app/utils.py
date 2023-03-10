@@ -1,4 +1,5 @@
-
+import re, urllib.request
+import tensorflow as tf
 
 # Unicode for emojis
 emojis = re.compile("["
@@ -22,6 +23,8 @@ emojis = re.compile("["
         u"\u3030"
                       "]+", re.UNICODE)
 
+
+#Function for cleaning tweet for transformation and classification
 def clean_tweet(tweet):
     """
     Function to clean tweet by:
@@ -44,6 +47,7 @@ def clean_tweet(tweet):
 
     return tweet
 
+#Function for filtering Tweet
 def filter_tweet(tweet, handle, mentions):
     """
     Function that filters tweet Filter for tweets directed at handle, based on the following rules:
@@ -79,3 +83,15 @@ def filter_tweet(tweet, handle, mentions):
             return True
     
     return False
+
+
+#Loading model from remote repository
+try:
+    link = './damodel8.h5'
+    model = tf.keras.models.load_model(link)
+except:
+    urllib.request.urlretrieve(
+            'https://github.com/dub-em/Election-Campaign-Application-Phase2/raw/main/models/damodel8.h5', 'damodel8.h5')
+
+    link = './damodel8.h5'
+    model = tf.keras.models.load_model(link)

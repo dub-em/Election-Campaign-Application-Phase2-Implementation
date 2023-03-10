@@ -1,6 +1,6 @@
 # Election-Campaign-Application
 
-## Phase 2 (Citizens' Voice)
+## Phase 2 Imiplementation(Citizens' Voice)
 + This project is the second phase of an intended bigger idea. This phase will focus on executing NLP algorithms and methods to answer the research questions raised in the first phase of the project in a more in-depth way.  
 
 ### Problem Statement (Citizens' Voice)
