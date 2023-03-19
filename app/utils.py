@@ -1,6 +1,7 @@
-import re, urllib.request
+import pandas as pd
+import numpy as np
+import re
 import tensorflow as tf
-import gensim
 from gensim.models import word2vec, KeyedVectors
 from gensim.models.word2vec import Word2Vec
 import glob, pprint, spacy
@@ -8,6 +9,14 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel
 import pyLDAvis, pyLDAvis.gensim_models
+from nltk.tokenize import word_tokenize
+
+#Loading model
+link = './models/sentmodel5.h5'
+model = tf.keras.models.load_model(link)
+
+#Loading gensim corpus
+wv = KeyedVectors.load('./corpus/word2vec-google-news-300')
 
 # Unicode for emojis
 emojis = re.compile("["
@@ -52,7 +61,6 @@ def clean_tweet(tweet):
     tweet = re.sub("&", "and", tweet) # changes & sign to and
     tweet = re.sub(r"[^\w\s\@]","",tweet) # removes punctuation
     tweet = tweet.strip()
-
     return tweet
 
 #Function for filtering Tweet
@@ -89,20 +97,32 @@ def filter_tweet(tweet, handle, mentions):
     for mention in mentions:
         if mention in tweet:
             return True
-    
     return False
 
 
-#Loading model from remote repository
-try:
-    link = './damodel8.h5'
-    model = tf.keras.models.load_model(link)
-except:
-    urllib.request.urlretrieve(
-            'https://github.com/dub-em/Election-Campaign-Application-Phase2/raw/main/models/damodel8.h5', 'damodel8.h5')
+#Function for transforming the data
+def sent_vect5(series):
+    """This function tokenizes each text and encodes each word in each text with it's vector representation
+    in the word2vec-google-news-300 GENSIM dictionary.
+    
+    This nested list/array will later be converted into a tensor, and fed directly into an RNN"""
+    
+    shape = series.shape[0]
+    series = list(series.values)
+    array = []
+    pad_array = np.zeros(300)
+    for i in range(shape):
+        word_token = word_tokenize(series[i])
+        sample_vector = np.array([list(wv[word]) for word in word_token if word in wv.index_to_key])
+        if sample_vector.shape[0] > 0:
+            deficit = 50-sample_vector.shape[0]
+            for i in range(deficit):
+                sample_vector = np.vstack((sample_vector, pad_array))
+        else:
+            sample_vector = np.zeros((50, 300))
+        array.append(sample_vector.tolist())
+    return array
 
-    link = './damodel8.h5'
-    model = tf.keras.models.load_model(link)
-
-
-wv = KeyedVectors.load('word2vec-google-news-300')
+def final_data(dataset):
+    independent_variable = np.array(dataset)
+    return independent_variable
