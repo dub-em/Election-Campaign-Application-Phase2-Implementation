@@ -2,3 +2,5 @@ venv/
 .env
 __pychache__
 app/corpus/
+app/.ipynb_checkpoints/
+app/support_file.ipynb
