@@ -1,5 +1,13 @@
 import re, urllib.request
 import tensorflow as tf
+import gensim
+from gensim.models import word2vec, KeyedVectors
+from gensim.models.word2vec import Word2Vec
+import glob, pprint, spacy
+import gensim.corpora as corpora
+from gensim.utils import simple_preprocess
+from gensim.models import CoherenceModel
+import pyLDAvis, pyLDAvis.gensim_models
 
 # Unicode for emojis
 emojis = re.compile("["
@@ -95,3 +103,6 @@ except:
 
     link = './damodel8.h5'
     model = tf.keras.models.load_model(link)
+
+
+wv = KeyedVectors.load('word2vec-google-news-300')
