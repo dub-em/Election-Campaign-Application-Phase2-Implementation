@@ -59,7 +59,7 @@ def app():
         conn.autocommit = True
         cursor = conn.cursor()       
         sql1 = '''DELETE FROM citizen_sentiment 
-                  WHERE time_created >= (DATE(NOW()) - INTERVAL '7' DAY);'''
+                  WHERE time_created <= (DATE(NOW()) - INTERVAL '8' DAY);'''
         cursor.execute(sql1)
         conn.close()
 
@@ -67,7 +67,7 @@ def app():
             """
             This function is for the orchestraction/scheduling of this script
             """
-            with Flow("primis",schedule=schedule) as flow:
+            with Flow("sentiment_prediction",schedule=schedule) as flow:
                 sentiment = predict_sentiment()
             return flow
 
