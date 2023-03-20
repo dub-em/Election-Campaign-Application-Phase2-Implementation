@@ -11,12 +11,19 @@ from gensim.models import CoherenceModel
 import pyLDAvis, pyLDAvis.gensim_models
 from nltk.tokenize import word_tokenize
 
+
 #Loading model
 link = './models/sentmodel5.h5'
 model = tf.keras.models.load_model(link)
 
+
 #Loading gensim corpus
 wv = KeyedVectors.load('./corpus/word2vec-google-news-300')
+
+
+#Dictionary to identify the classes in the target variable
+sent_dict = {'0':'indifferent','1':'negative','2':'positive'}
+
 
 # Unicode for emojis
 emojis = re.compile("["
@@ -63,6 +70,7 @@ def clean_tweet(tweet):
     tweet = tweet.strip()
     return tweet
 
+
 #Function for filtering Tweet
 def filter_tweet(tweet, handle, mentions):
     """
@@ -101,7 +109,7 @@ def filter_tweet(tweet, handle, mentions):
 
 
 #Function for transforming the data
-def sent_vect5(series):
+def sent_vect(series):
     """This function tokenizes each text and encodes each word in each text with it's vector representation
     in the word2vec-google-news-300 GENSIM dictionary.
     
