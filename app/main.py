@@ -1,5 +1,5 @@
 def app():
-    from . import database, utils
+    import database, utils
     from datetime import date
     import datetime
     import pandas as pd
@@ -21,7 +21,7 @@ def app():
         conn = database.database_connection()          
         sql_query = pd.read_sql_query("""SELECT * FROM election 
                                          WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
-                                         LIMIT 2000""", conn)
+                                         LIMIT 10""", conn)
 
         tweets = pd.DataFrame(sql_query, columns = ['time_created','screen_name', 
                                                     'name','tweet','loca_tion',
@@ -74,7 +74,7 @@ def app():
     #Define the interval between app intiation cycle
     schedule = IntervalSchedule(
         start_date = datetime.datetime.now() + datetime.timedelta(seconds = 2),
-        interval = datetime.timedelta(hours=24)
+        interval = datetime.timedelta(minutes=5)
     )
 
     #Create the flow object and calls the run method

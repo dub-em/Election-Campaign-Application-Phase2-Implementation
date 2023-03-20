@@ -1,6 +1,6 @@
 venv/
 .env
-__pychache__
+app/__pycache__
 app/corpus/
 app/.ipynb_checkpoints/
 app/support_file.ipynb

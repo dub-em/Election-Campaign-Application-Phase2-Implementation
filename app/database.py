@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from sqlalchemy import create_engine
-from .config import settings
+from config import settings
 import time
 
 def database_connection():
