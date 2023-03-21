@@ -2,13 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import tensorflow as tf
-from gensim.models import word2vec, KeyedVectors
-from gensim.models.word2vec import Word2Vec
-import glob, pprint, spacy
-import gensim.corpora as corpora
-from gensim.utils import simple_preprocess
-from gensim.models import CoherenceModel
-import pyLDAvis, pyLDAvis.gensim_models
+from gensim.models import KeyedVectors
 from nltk.tokenize import word_tokenize
 
 

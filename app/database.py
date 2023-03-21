@@ -22,7 +22,7 @@ def sqlalchemy_engine():
     """A function that create an sqlalchemy engine so dataframe.to_sql command."""
     while True:
         try:
-            db = create_engine(settings.database_connstring)
+            db = create_engine(settings.database_connstring).execution_options(autocommit=True)
             conn = db.connect()
             print('Database connection was successful!')
             break
@@ -30,4 +30,4 @@ def sqlalchemy_engine():
             print('Connecting to Database failed!')
             print('Error:', error)
             time.sleep(2)
-    return (conn)
+    return (conn, db)
