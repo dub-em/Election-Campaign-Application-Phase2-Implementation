@@ -5,13 +5,15 @@ import tensorflow as tf
 from gensim.models import KeyedVectors
 from nltk.tokenize import word_tokenize
 
-
 #Loading model
-link = './models/sentmodel5.h5'
+#when building the docker image use "./app/models/sentmodel5.h5", because . represents the working
+#directory in the Dockerfile, '/usr/src/app' which is the parent folder containing everything
+link = './models/sentmodel5.h5' 
 model = tf.keras.models.load_model(link)
 
 
 #Loading gensim corpus
+#when building the docker image use "./app/corpus/word2vec-google-news-300"
 wv = KeyedVectors.load('./corpus/word2vec-google-news-300')
 
 
