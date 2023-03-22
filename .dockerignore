@@ -1,0 +1,5 @@
+venv/
+.env
+app/__pycache__
+app/.ipynb_checkpoints/
+app/support_file.ipynb
