@@ -40,6 +40,9 @@
 		- What is being said about each candidate?
 		- What is the general sentiment of what is being said?
 
+### Duckerhub Repository
++ https://hub.docker.com/r/dub3m/citizens-voice
+
 ### Article
 + https://www.linkedin.com/pulse/citizens-sentiment-michael-igbomezie
 
