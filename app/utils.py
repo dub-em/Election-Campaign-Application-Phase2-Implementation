@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
-import re
+from datetime import datetime
+import re, gensim, spacy
 import tensorflow as tf
 from gensim.models import KeyedVectors
+import gensim.corpora as corpora
+from gensim.utils import simple_preprocess
 from nltk.tokenize import word_tokenize
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 #Loading model
 #when building the docker image use "./app/models/sentmodel5.h5", because . represents the working
@@ -130,3 +135,87 @@ def sent_vect(series):
 def final_data(dataset):
     independent_variable = np.array(dataset)
     return independent_variable
+
+
+#Topic Extraction Functions
+def sent_to_word(sentences):
+    """ This function removes stop words usign a different method from the precious one(s) used."""
+    
+    for sentence in sentences:
+        yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))
+        
+def make_bigrams(texts, bigram_mod):
+    return [bigram_mod[doc] for doc in texts]
+
+def lemmatization(texts, nlp, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+    """https://spacy.io/api/annotation"""
+    texts_out = []
+    for sent in texts:
+        doc = nlp(" ".join(sent)) 
+        texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+    return texts_out
+
+#Creates the coprus and dictionary for the topic extraction
+def LDA_parameters(text):
+    """This function takes the text, processes it, and return the parameters to build the LDA Topic Model."""
+    
+    data = text.tolist()
+    data_words = list(sent_to_word(data))
+
+    # Build the bigram and trigram models
+    bigram = gensim.models.Phrases(data_words, min_count=5, threshold=100) # higher threshold fewer phrases.
+    #trigram = gensim.models.Phrases(bigram[data_words], threshold=100)  
+
+    # Faster way to get a sentence clubbed as a bigram
+    bigram_mod = gensim.models.phrases.Phraser(bigram)
+
+    # Form Bigrams
+    data_words_bigrams = make_bigrams(data_words, bigram_mod)
+    data_words_bigrams[:1]
+
+    # Initialize spacy 'en' model, keeping only tagger component (for efficiency)
+    # python3 -m spacy download en
+    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
+
+    # Do lemmatization keeping only noun, adj, vb, adv
+    data_lemmatized = lemmatization(data_words_bigrams, nlp, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+
+    # Create Dictionary
+    id2word = corpora.Dictionary(data_lemmatized)
+
+    # Create Corpus
+    texts = data_lemmatized
+
+    # Term Document Frequency
+    corpus = [id2word.doc2bow(text) for text in texts]
+    
+    return corpus, id2word
+
+#Applies the corpus and dictionary to extract topics, and converts topics to dataframe
+def extract_topics(text, num_topics=10):
+    corpus, id2word = LDA_parameters(text)
+
+    # Build LDA model
+    lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus, id2word=id2word,
+                                               num_topics=10, random_state=100,
+                                               update_every=1, chunksize=100,
+                                               passes=10, alpha='auto',
+                                               per_word_topics=True)
+    
+    # arrangement of extracted topics
+    topic_words = []
+    for i in range(num_topics):
+        topic_pair = lda_model.get_topic_terms(i,10)
+        topic_words.append([id2word[pair[0]] for pair in topic_pair])
+
+    topic_dict = {'date':[datetime.now() for i in range(10)],
+                 'topic importance':['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'],
+                 'word_1':[],'word_2':[],'word_3':[],'word_4':[],'word_5':[],'word_6':[],
+                 'word_7':[],'word_8':[],'word_9':[],'word_10':[]}
+    
+    for topic in topic_words:
+        for i in range(1,len(topic)+1):
+            string = 'word_' + str(i)
+            topic_dict[string].append(topic[i-1])
+    topic_df = pd.DataFrame(topic_dict)
+    return topic_df

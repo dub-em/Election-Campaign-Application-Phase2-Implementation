@@ -11,7 +11,7 @@ def app():
     conn = database.database_connection()          
     sql_query = pd.read_sql_query("""SELECT * FROM election 
                                      WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
-                                     LIMIT 2000""", conn)
+                                     LIMIT 20""", conn)
 
     tweets = pd.DataFrame(sql_query, columns = ['time_created','screen_name', 
                                                 'name','tweet','loca_tion',
@@ -23,6 +23,7 @@ def app():
 
     #Cleans the dataset (removing emoji, link etc.)
     tweets.tweet = tweets.tweet.str.lower()
+    tweets.loca_tion = tweets.loca_tion.str.lower()
     tweets["clean_tweet"] = tweets.tweet.apply(utils.clean_tweet)
 
     #Transforms the dataset to its tensor format
@@ -37,11 +38,16 @@ def app():
     #Add this prediction to the cleaned dataset
     tweets['sentiment'] = prediction_class
 
+    #Extracts the trending topic being discussed amongst citizens
+    nation_topic = utils.extract_topics(tweets['clean_tweet'])
+
     #Connect to the database and loads the cleaned and predicted dataset.
     #Loads predicted sentiment to database
     conn, db = database.sqlalchemy_engine()
     tweets.to_sql('citizen_sentiment', con=db, schema='public', if_exists='append',
-                    index=False)
+                   index=False)
+    nation_topic.to_sql('national_discourse', con=db, schema='public', if_exists='append',
+                         index=False)
     conn.close()
 
     #Deletes any tweet older than 8 days
@@ -51,11 +57,15 @@ def app():
     sql1 = '''DELETE FROM public.citizen_sentiment 
               WHERE time_created <= (DATE(NOW()) - INTERVAL '8' DAY);'''
     cursor.execute(sql1)
+    sql2 = '''DELETE FROM public.national_discourse 
+              WHERE date <= (DATE(NOW()) - INTERVAL '8' DAY);'''
+    cursor.execute(sql2)
     conn.close()
 
 app()
 
-schedule.every(24).hours.do(app)
+schedule.every(10).minutes.do(app)
+#schedule.every(24).hours.do(app)
 
 while True:
     # Checks whether a scheduled task is pending to run or not
