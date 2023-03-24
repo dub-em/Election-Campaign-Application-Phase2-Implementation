@@ -21,7 +21,7 @@
 ### Research Questions Focus Areas
 + General Trends
     - This sections covers the generic trends existing amongst citizens' discussion groups.
-        - What is most talked about (regardless of area or topic)
+        - What is most talked about (regardless of area or topic)?
 + Citizens' Sentiment
     - This section covers citizens' reactions and general sentiment towards certain topic (e.g areas of developments, policies, politically significant events, public office holders' performance and so on).
         - What is the general sentiment of the citizens?
