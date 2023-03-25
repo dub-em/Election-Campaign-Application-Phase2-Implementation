@@ -124,9 +124,12 @@ def sent_vect(series):
         word_token = word_tokenize(series[i])
         sample_vector = np.array([list(wv[word]) for word in word_token if word in wv.index_to_key])
         if sample_vector.shape[0] > 0:
-            deficit = 50-sample_vector.shape[0]
-            for i in range(deficit):
-                sample_vector = np.vstack((sample_vector, pad_array))
+            if sample_vector.shape[0] >= 50:
+                sample_vector = sample_vector[:50,:]
+            else:
+                deficit = 50-sample_vector.shape[0]
+                for i in range(deficit):
+                    sample_vector = np.vstack((sample_vector, pad_array))
         else:
             sample_vector = np.zeros((50, 300))
         array.append(sample_vector.tolist())
