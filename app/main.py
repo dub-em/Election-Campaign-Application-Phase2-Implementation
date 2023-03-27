@@ -1,6 +1,7 @@
 import schedule, time
 import database, utils
 import pandas as pd
+from sqlalchemy import text
 
 def app():
     """Function that extract the raw data from the database,
@@ -8,17 +9,13 @@ def app():
     and loads the cleaned and categorized dataset to the database."""
 
     #Creates connection with the database and extracts raw data
-    conn = database.database_connection()          
-    sql_query = pd.read_sql_query("""SELECT * FROM election 
-                                     WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
-                                     LIMIT 20""", conn)
-
-    tweets = pd.DataFrame(sql_query, columns = ['time_created','screen_name', 
-                                                'name','tweet','loca_tion',
-                                                'descrip_tion','verified',
-                                                'followers','geo_enabled',
-                                                'retweet_count','truncated',
-                                                'lang','likes'])
+    conn, db = database.sqlalchemy_engine()
+    #conn = engine.connect()
+    query = '''SELECT * FROM election 
+               WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
+               LIMIT 20''' 
+    query = text(query)  
+    tweets = pd.read_sql_query(query, conn)
     conn.close()
 
     #Cleans the dataset (removing emoji, link etc.)
