@@ -10,7 +10,6 @@ def app():
 
     #Creates connection with the database and extracts raw data
     conn, db = database.sqlalchemy_engine()
-    #conn = engine.connect()
     query = '''SELECT * FROM election 
                WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
                LIMIT 20''' 
