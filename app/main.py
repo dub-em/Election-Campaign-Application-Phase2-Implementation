@@ -1,9 +1,23 @@
-import schedule, time
-import database, utils
+from . import database, utils
 import pandas as pd
 from sqlalchemy import text
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-def app():
+app = FastAPI()
+#uvicorn app.main:app --reload
+
+origins = ["*"] #"*" allows every single domain to be able to access our API.
+                #If we have an exclusive list of domains we want to have access to our API, then we put them in our list.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],)
+
+def predict_sentiment():
     """Function that extract the raw data from the database,
     cleans it, transforms it, predicts the sentiment using the trained model,
     and loads the cleaned and categorized dataset to the database."""
@@ -57,13 +71,13 @@ def app():
               WHERE date <= (DATE(NOW()) - INTERVAL '8' DAY);'''
     cursor.execute(sql2)
     conn.close()
+    return "Daily Prediction Successful!"
 
-app()
+@app.get("/health")
+def health():
+    return{"message":"App check successful!"}
 
-schedule.every(10).minutes.do(app)
-#schedule.every(24).hours.do(app)
-
-while True:
-    # Checks whether a scheduled task is pending to run or not
-    schedule.run_pending()
-    time.sleep(5)
+@app.get("/predict")
+def run_prediction():
+    message = predict_sentiment()
+    return{"message":message}
