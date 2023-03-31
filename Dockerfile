@@ -14,6 +14,6 @@ RUN python -m spacy download en
 
 COPY . .
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD [ "python", "./app/main.py" ]
