@@ -26,7 +26,7 @@ def predict_sentiment():
     conn, db = database.sqlalchemy_engine()
     query = '''SELECT * FROM election 
                WHERE time_created >= (DATE(NOW()) - INTERVAL '1' DAY) 
-               LIMIT 20''' 
+               LIMIT 1000''' 
     query = text(query)  
     tweets = pd.read_sql_query(query, conn)
     conn.close()
